@@ -15,6 +15,8 @@ namespace ToDoListApp
                 //Kanske inte fungerar, dubbelkolla denna
                 ProgramManager.ArchiveLists.RemoveAt(listId - 1);
 
+                ProgramManager.UpdateArchive();
+
                 AllArchiveListsOverview.AllArchiveLists();
 
                 return;
