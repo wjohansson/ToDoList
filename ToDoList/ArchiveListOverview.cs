@@ -8,22 +8,22 @@ namespace ToDoListApp
         {
             var currentList = ProgramManager.ArchiveLists[listId - 1];
 
-            Console.Clear();
-
-            Console.WriteLine($"List Title: {currentList.ListTitle}");
-            Console.WriteLine();
-
             var tasks = currentList.Tasks;
 
             if (tasks.Count == 0)
             {
                 //Kanske inte fungerar, dubbelkolla denna
-                ProgramManager.ArchiveLists.Remove(currentList);
+                ProgramManager.ArchiveLists.RemoveAt(listId - 1);
 
-                ViewTasksInArchiveList(listId);
+                AllArchiveListsOverview.AllArchiveLists();
 
                 return;
             }
+
+            Console.Clear();
+
+            Console.WriteLine($"List Title: {currentList.ListTitle}");
+            Console.WriteLine();
 
             ProgramManager.UpdateArchive();
 
@@ -49,7 +49,7 @@ namespace ToDoListApp
         public static void ArchiveTasksOption(int listId)
         {
             Console.WriteLine("[R] To restore task.");
-            Console.WriteLine("[D] To delete an arhived task.");
+            Console.WriteLine("[D] To delete an archived task.");
             Console.WriteLine("[B] To go back to archive start page.");
             Console.WriteLine("[Q] To quit the program.");
 
@@ -58,7 +58,7 @@ namespace ToDoListApp
             switch (Console.ReadLine().ToUpper())
             {
                 case "R":
-                    ArchiveTask.RestoreTask(listId);
+                    ArchiveTask.RestoreSpecificTask(listId);
 
                     break;
                 case "D":

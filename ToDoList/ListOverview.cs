@@ -49,13 +49,13 @@ namespace ToDoListApp
 
         public static void TasksOption(int listId)
         {
-            Console.WriteLine("To edit this list: 'E'");
-            Console.WriteLine("To view a task: 'V'");
-            Console.WriteLine("To delete a task: 'D'");
-            Console.WriteLine("To create a new task: 'N'");
-            Console.WriteLine("To toggle completion of a task: 'T'");
-            Console.WriteLine("To go back to start page: 'B'");
-            Console.WriteLine("To quit the program: 'Q'");
+            Console.WriteLine("[E] To edit this list.");
+            Console.WriteLine("[V] To view a task.");
+            Console.WriteLine("[D] To delete a task.");
+            Console.WriteLine("[N] To create a new task.");
+            Console.WriteLine("[T] To toggle completion of a task.");
+            Console.WriteLine("[B] To go back to start page.");
+            Console.WriteLine("[Q] To quit the program.");
 
             Console.WriteLine();
             Console.Write("What do you want to do: ");

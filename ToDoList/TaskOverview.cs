@@ -33,10 +33,10 @@
 
         public static void TaskOption(int listId, int taskId)
         {
-            Console.WriteLine("To edit this task: 'E'");
-            Console.WriteLine("To store this task: 'S'");
-            Console.WriteLine("To go back to list overview: 'B'");
-            Console.WriteLine("To quit the program: 'Q'");
+            Console.WriteLine("[E] To edit this task.");
+            Console.WriteLine("[S] To store this task.");
+            Console.WriteLine("[B] To go back to list overview.");
+            Console.WriteLine("[Q] To quit the program.");
 
             Console.WriteLine();
             Console.Write("What do you want to do: ");

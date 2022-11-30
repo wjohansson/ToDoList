@@ -30,6 +30,7 @@ namespace ToDoListApp
             //Fixa så att en arkiverad lista försvinner om alla tasks tas bort
             //Fixa lista så till [] istället för ''. Måste göras på både archive och vanliga
             //Kunna arkivera en hel lista
+            //Möjlighet att expandera och collapsa tasks precis som listor
 
 
             //Frågor: Ska klar markering kunna göras från listan eller när man väl är inne i tasken? Menyn

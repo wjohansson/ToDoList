@@ -231,7 +231,7 @@
                 {
                     Console.WriteLine("Task already exists in archive");
 
-                    Console.Write("Do you still want to remove this task? y/N: ");
+                    Console.Write("Do you want to remove this task? y/N: ");
 
                     switch (Console.ReadLine().ToUpper())
                     {

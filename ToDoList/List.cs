@@ -18,13 +18,19 @@
                 return;
             }
 
-            var list = new List()
+
+            foreach (var list in ProgramManager.Lists)
+            {
+
+            }
+
+            var newList = new List()
             {
                 ListTitle = listTitle,
                 Tasks = new List<Task>()
             };
 
-            ProgramManager.Lists.Add(list);
+            ProgramManager.Lists.Add(newList);
 
             ProgramManager.UpdateAllLists();
 

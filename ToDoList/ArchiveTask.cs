@@ -52,6 +52,17 @@ namespace ToDoList
             ProgramManager.UpdateArchive();
         }
 
+        public static void DeleteArchiveTask(int listId, int taskId)
+        {
+            var currentList = ProgramManager.ArchiveLists[listId - 1];
+
+            var tasks = currentList.Tasks;
+
+            tasks.RemoveAt(taskId - 1);
+
+            ProgramManager.UpdateArchive();
+        }
+
         public static void RestoreSpecificTask(int listId)
         {
             //Kolla om denna lista som innehåller tasken finns i arkiv listan, om den finns så ska den även kolla om tasken redan finns, 
@@ -88,12 +99,12 @@ namespace ToDoList
             var currentListId = 0;
             List<ToDoListApp.Task> currentTasks;
 
-            foreach (var list in ProgramManager.ArchiveLists)
+            foreach (var list in ProgramManager.Lists)
             {
                 if (list.ListTitle == currentList.ListTitle)
                 {
                     listExists = true;
-                    currentListId = ProgramManager.ArchiveLists.IndexOf(list);
+                    currentListId = ProgramManager.Lists.IndexOf(list);
                     break;
                 }
             }
@@ -102,7 +113,7 @@ namespace ToDoList
 
             if (listExists)
             {
-                currentTasks = ProgramManager.ArchiveLists[currentListId].Tasks;
+                currentTasks = ProgramManager.Lists[currentListId].Tasks;
 
                 foreach (var task in currentTasks)
                 {
@@ -115,9 +126,9 @@ namespace ToDoList
 
                 if (taskExists)
                 {
-                    Console.WriteLine("Task already exists in archive");
+                    Console.WriteLine("Task already exists");
 
-                    Console.Write("Do you still want to remove this task? y/N: ");
+                    Console.Write("Do you want to remove this task? y/N: ");
 
                     switch (Console.ReadLine().ToUpper())
                     {
@@ -127,25 +138,25 @@ namespace ToDoList
                             return;
                     }
 
-                    DeleteTask(listId, taskId);
+                    DeleteArchiveTask(listId, taskId);
                     return;
                 }
 
-                ProgramManager.ArchiveLists[currentListId].Tasks.Add(currentTask);
+                ProgramManager.Lists[currentListId].Tasks.Add(currentTask);
             }
             else
             {
                 var newList = new List()
                 {
                     ListTitle = currentList.ListTitle,
-                    Tasks = new List<Task>()
+                    Tasks = new List<ToDoListApp.Task>()
                 };
 
-                ProgramManager.ArchiveLists.Add(newList);
+                ProgramManager.Lists.Add(newList);
 
-                var archiveNewListId = ProgramManager.ArchiveLists.IndexOf(newList);
+                var newListId = ProgramManager.Lists.IndexOf(newList);
 
-                ProgramManager.ArchiveLists[archiveNewListId].Tasks.Add(currentTask);
+                ProgramManager.Lists[newListId].Tasks.Add(currentTask);
             }
 
             Console.Write("Are you sure? y/N: ");
@@ -158,11 +169,11 @@ namespace ToDoList
                     return;
             }
 
-            ProgramManager.UpdateArchive();
+            ProgramManager.UpdateAllLists();
 
-            DeleteTask(listId, taskId);
+            DeleteArchiveTask(listId, taskId);
 
-            ListOverview.ViewTasksInList(listId);
+            ArchiveListOverview.ViewTasksInArchiveList(listId);
         }
     }
 }
