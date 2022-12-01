@@ -15,14 +15,14 @@ namespace ToDoListApp
         {
             if (!File.Exists(_path) || String.IsNullOrEmpty(File.ReadAllText(_path)))
             {
-                using (var fs = File.Create(_path)) { }
+                using (FileStream fs = File.Create(_path)) { }
 
                 File.WriteAllText(_path, "[]");
             }
 
             if (!File.Exists(_archivePath) || String.IsNullOrEmpty(File.ReadAllText(_archivePath)))
             {
-                using (var fs = File.Create(_archivePath)) { }
+                using (FileStream fs = File.Create(_archivePath)) { }
 
                 File.WriteAllText(_archivePath, "[]");
             }
@@ -34,9 +34,9 @@ namespace ToDoListApp
 
         public static List<List> GetAllLists()
         {
-            var jsonData = File.ReadAllText(_path);
+            string jsonData = File.ReadAllText(_path);
 
-            var lists = JsonSerializer.Deserialize<List<List>>(jsonData);
+            List<List> lists = JsonSerializer.Deserialize<List<List>>(jsonData);
 
             return lists;
         }
@@ -44,7 +44,7 @@ namespace ToDoListApp
         public static void UpdateAllLists()
         {
 
-            var jsonData = JsonSerializer.Serialize(Lists);
+            string jsonData = JsonSerializer.Serialize(Lists);
 
             File.WriteAllText(_path, jsonData);
         }
@@ -52,16 +52,16 @@ namespace ToDoListApp
         public static List<List> GetArchive()
         {
 
-            var jsonData = File.ReadAllText(_archivePath);
+            string jsonData = File.ReadAllText(_archivePath);
 
-            var lists = JsonSerializer.Deserialize<List<List>>(jsonData);
+            List<List> lists = JsonSerializer.Deserialize<List<List>>(jsonData);
 
             return lists;
         }
 
         public static void UpdateArchive()
         {
-            var jsonData = JsonSerializer.Serialize(ArchiveLists);
+            string jsonData = JsonSerializer.Serialize(ArchiveLists);
 
             File.WriteAllText(_archivePath, jsonData);
         }
@@ -79,6 +79,38 @@ namespace ToDoListApp
 
                     break;
             }
+        }
+
+        public static void ClearAllLists()
+        {
+            Console.Write("Are you sure? y/N: ");
+
+            switch (Console.ReadLine().ToUpper())
+            {
+                case "Y":
+                    break;
+                default:
+                    return;
+            }
+
+            Lists.Clear();
+            UpdateAllLists();
+        }
+
+        public static void ClearAllArchiveLists()
+        {
+            Console.Write("Are you sure? y/N: ");
+
+            switch (Console.ReadLine().ToUpper())
+            {
+                case "Y":
+                    break;
+                default:
+                    return;
+            }
+
+            ArchiveLists.Clear();
+            UpdateArchive();
         }
     }
 }

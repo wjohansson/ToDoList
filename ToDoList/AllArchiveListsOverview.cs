@@ -6,6 +6,10 @@
         {
             Console.Clear();
 
+            Console.WriteLine("ARCHIVE OVEWVIEW MENU");
+            Console.WriteLine();
+
+
             if (ProgramManager.ArchiveLists.Count == 0)
             {
                 Console.WriteLine("No existing archived lists");
@@ -19,7 +23,7 @@
             Console.WriteLine("Current existing archived lists:");
             Console.WriteLine();
 
-            foreach (var list in ProgramManager.ArchiveLists)
+            foreach (List list in ProgramManager.ArchiveLists)
             {
                 Console.WriteLine($"-{ProgramManager.ArchiveLists.IndexOf(list) + 1}- {list.ListTitle}");
                 Console.WriteLine();
@@ -32,6 +36,9 @@
         {
             Console.Clear();
 
+            Console.WriteLine("ARCHIVE OVEWVIEW MENU");
+            Console.WriteLine();
+
             if (ProgramManager.ArchiveLists.Count == 0)
             {
                 Console.WriteLine("No existing archived lists and tasks.");
@@ -41,14 +48,15 @@
 
                 return;
             }
+
             Console.WriteLine("Current existing archived lists and tasks:");
             Console.WriteLine();
 
-            foreach (var list in ProgramManager.ArchiveLists)
+            foreach (List list in ProgramManager.ArchiveLists)
             {
                 Console.WriteLine($"-{ProgramManager.ArchiveLists.IndexOf(list) + 1}- {list.ListTitle}");
 
-                foreach (var task in list.Tasks)
+                foreach (Task task in list.Tasks)
                 {
                     if (task.Completed)
                     {
@@ -72,6 +80,7 @@
             Console.WriteLine("[V] To view a arvchived list.");
             Console.WriteLine("[D] To delete a arvchived list.");
             Console.WriteLine("[B] To go back to startpage.");
+            Console.WriteLine("[DELARCHIVE] To go delete all tasks and lists in archive.");
             Console.WriteLine("[Q] To quit the program.");
 
             Console.WriteLine();
@@ -97,6 +106,10 @@
                 case "B":
                     Console.Clear();
                     AllListsOverview.AllLists();
+
+                    break;
+                case "DELARCHIVE":
+                    ProgramManager.ClearAllArchiveLists();
 
                     break;
                 case "Q":

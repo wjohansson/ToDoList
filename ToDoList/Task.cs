@@ -5,18 +5,20 @@
         public string TaskTitle { get; set; }
         public string TaskDescription { get; set; }
         public bool Completed { get; set; }
+        public int Priority { get; set; }
+        public string DateCreated { get; set; }
 
         public static void CreateTask(int listId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
-            var tasks = currentList.Tasks;
+            List<Task> tasks = currentList.Tasks;
 
             Console.Write("Enter a new task: ");
-            var newTitle = Console.ReadLine();
+            string newTitle = Console.ReadLine();
 
             Console.Write("Enter the task description: ");
-            var newDescription = Console.ReadLine();
+            string newDescription = Console.ReadLine();
 
             if (String.IsNullOrWhiteSpace(newTitle) || String.IsNullOrWhiteSpace(newDescription))
             {
@@ -27,11 +29,35 @@
                 return;
             }
 
-            var task = new Task()
+            int newPriority;
+
+            try
+            {
+                Console.Write("Enter priority of the task as a number between 1 and 5: ");
+                newPriority = Convert.ToInt32(Console.ReadLine());
+
+                if (newPriority > 5 || newPriority < 1)
+                {
+                    throw new FormatException();
+                }
+            }
+            catch (FormatException)
+            {
+
+                Console.WriteLine("Priority must be a number between 1 and 5. Try again.");
+
+                CreateTask(listId);
+
+                return;
+            }
+
+            Task task = new()
             {
                 TaskTitle = newTitle,
                 TaskDescription = newDescription,
-                Completed = false
+                Completed = false,
+                Priority = newPriority,
+                DateCreated = DateTime.Now.ToString("G"),
             };
 
             tasks.Add(task);
@@ -41,38 +67,52 @@
 
         public static void EditTask(int listId, int taskId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
-            var tasks = currentList.Tasks;
+            List<Task> tasks = currentList.Tasks;
 
-            var currentTask = tasks[taskId - 1];
+            Task currentTask = tasks[taskId - 1];
+
+            string newPriorityInput;
+            int newPriority;
+
+            try
+            {
+                Console.WriteLine($"Old priority: {currentTask.Priority}");
+                Console.Write("Enter the new priority or leave empty to keep old priority: ");
+                newPriorityInput = Console.ReadLine();
+
+                if (!String.IsNullOrWhiteSpace(newPriorityInput))
+                {
+                    newPriority = Convert.ToInt32(newPriorityInput);
+
+                    if (newPriority > 5 || newPriority < 1)
+                    {
+                        throw new FormatException();
+                    }
+
+                    currentTask.Priority = newPriority;
+                }
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Priority must be a number between 1 and 5. Try again");
+
+                EditTask(listId, taskId);
+
+                return;
+            }
 
             Console.WriteLine();
             Console.WriteLine($"Old title: {currentTask.TaskTitle}");
-            Console.Write("Enter the new title: ");
-            var newTitle = Console.ReadLine();
-
-            if (String.IsNullOrWhiteSpace(newTitle))
-            {
-                Console.WriteLine("The title can not be empty. Try again.");
-
-                EditTask(listId, taskId);
-
-                return;
-            }
+            Console.Write("Enter the new title or leave empty to keep old title: ");
+            string newTitle = Console.ReadLine();
 
             Console.WriteLine($"Old description: {currentTask.TaskDescription}");
-            Console.Write("Enter the new description: ");
-            var newDescription = Console.ReadLine();
+            Console.Write("Enter the new description or leave empty to keep old description: ");
+            string newDescription = Console.ReadLine();
 
-            if (String.IsNullOrWhiteSpace(newDescription))
-            {
-                Console.WriteLine("The description can not be empty. Try again.");
-
-                EditTask(listId, taskId);
-
-                return;
-            }
+            
 
             Console.Write("Are you sure? y/N: ");
 
@@ -84,17 +124,25 @@
                     return;
             }
 
-            currentTask.TaskTitle = newTitle;
-            currentTask.TaskDescription = newDescription;
+            if (!String.IsNullOrWhiteSpace(newTitle))
+            {
+                currentTask.TaskTitle = newTitle;
+            }
+
+            if (!String.IsNullOrWhiteSpace(newDescription))
+            {
+                currentTask.TaskDescription = newDescription;
+            }
+
 
             ProgramManager.UpdateAllLists();
         }
 
         public static void DeleteSpecificTask(int listId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
-            var tasks = currentList.Tasks;
+            List<Task> tasks = currentList.Tasks;
 
             int taskId;
 
@@ -140,9 +188,9 @@
 
         public static void DeleteTask(int listId, int taskId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
-            var tasks = currentList.Tasks;
+            List<Task> tasks = currentList.Tasks;
 
             tasks.RemoveAt(taskId - 1);
             
@@ -184,25 +232,19 @@
 
         public static void ArchiveTask(int listId, int taskId)
         {
-            //Kolla om denna lista som innehåller tasken finns i arkiv listan, om den finns så ska den även kolla om tasken redan finns, 
-            // om tasken också finns så ska man inte göra nånting mer, eftersom det inte ska finnas dubletter av någonting
-            // om tasken däremot inte finns men listan finns så måste man lägga till tasken i den redan befintliga listan
-            // om varken tasken eller listan finns så måste man skapa en ny lista med samma namn. Och sedan måste man då lägga
-            // till den nya tasken i listan
+            List currentList = ProgramManager.Lists[listId - 1];
 
-            var currentList = ProgramManager.Lists[listId - 1];
+            List<Task> tasks = currentList.Tasks;
 
-            var tasks = currentList.Tasks;
-
-            var currentTask = tasks[taskId - 1];
+            Task currentTask = tasks[taskId - 1];
 
             var listExists = false;
             var taskExists = false;
 
-            int archiveListId = 0;
+            var archiveListId = 0;
             List<Task> currentArchiveTasks;
 
-            foreach (var list in ProgramManager.ArchiveLists)
+            foreach (List list in ProgramManager.ArchiveLists)
             {
                 if (list.ListTitle == currentList.ListTitle)
                 {
@@ -218,7 +260,7 @@
             {
                 currentArchiveTasks = ProgramManager.ArchiveLists[archiveListId].Tasks;
 
-                foreach (var task in currentArchiveTasks)
+                foreach (Task task in currentArchiveTasks)
                 {
                     if (task.TaskTitle == currentTask.TaskTitle)
                     {
@@ -249,7 +291,7 @@
             }
             else
             {
-                var newList = new List()
+                List newList = new()
                 {
                     ListTitle = currentList.ListTitle,
                     Tasks = new List<Task>()
@@ -257,7 +299,7 @@
 
                 ProgramManager.ArchiveLists.Add(newList);
 
-                var archiveNewListId = ProgramManager.ArchiveLists.IndexOf(newList);
+                int archiveNewListId = ProgramManager.ArchiveLists.IndexOf(newList);
 
                 ProgramManager.ArchiveLists[archiveNewListId].Tasks.Add(currentTask);
             }
@@ -281,9 +323,9 @@
 
         public static void ToggleComplete(int listId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
-            var tasks = currentList.Tasks;
+            List<Task> tasks = currentList.Tasks;
 
             int taskId;
 

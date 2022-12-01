@@ -6,14 +6,17 @@ namespace ToDoListApp
     {
         public static void ViewTasksInList(int listId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
             Console.Clear();
 
-            Console.WriteLine($"List Title: {currentList.ListTitle}");
+            Console.WriteLine("LIST MENU");
             Console.WriteLine();
 
-            var tasks = currentList.Tasks;
+            Console.WriteLine($"List Title - {currentList.ListTitle} (Category: {currentList.ListCategory})");
+            Console.WriteLine();
+
+            List<Task> tasks = currentList.Tasks;
 
             if (tasks.Count == 0)
             {
@@ -28,15 +31,16 @@ namespace ToDoListApp
 
             ProgramManager.UpdateAllLists();
 
-            foreach (var task in tasks)
+            foreach (Task task in tasks)
             {
                 if (task.Completed)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
 
-                Console.WriteLine($"-{tasks.IndexOf(task) + 1}- {task.TaskTitle}");
-                Console.WriteLine($"    - {task.TaskDescription}");
+                Console.WriteLine($"    Task ID #{tasks.IndexOf(task) + 1}");
+                Console.WriteLine($"        Title - {task.TaskTitle} (Prio: {task.Priority})");
+                Console.WriteLine($"            ¤ {task.TaskDescription}");
                 Console.WriteLine();
 
                 Console.ForegroundColor = ConsoleColor.White;
@@ -50,10 +54,12 @@ namespace ToDoListApp
         public static void TasksOption(int listId)
         {
             Console.WriteLine("[E] To edit this list.");
+            Console.WriteLine("[A] To archive this list.");
             Console.WriteLine("[V] To view a task.");
             Console.WriteLine("[D] To delete a task.");
             Console.WriteLine("[N] To create a new task.");
             Console.WriteLine("[T] To toggle completion of a task.");
+            Console.WriteLine("[S] To sort tasks.");
             Console.WriteLine("[B] To go back to start page.");
             Console.WriteLine("[Q] To quit the program.");
 
@@ -65,6 +71,11 @@ namespace ToDoListApp
                     List.EditList(listId);
 
                     break;
+                case "A":
+                    List.ArchiveThisList(listId);
+                    AllListsOverview.AllLists();
+
+                    return;
                 case "V":
                     Task.ViewTask(listId);
 
@@ -79,6 +90,10 @@ namespace ToDoListApp
                     break;
                 case "T":
                     Task.ToggleComplete(listId);
+
+                    break;
+                case "S":
+                    TaskSort.SortTasks(listId);
 
                     break;
                 case "B":

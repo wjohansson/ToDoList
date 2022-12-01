@@ -1,12 +1,14 @@
-﻿namespace ToDoListApp
+﻿using System.Threading.Tasks;
+
+namespace ToDoListApp
 {
     public class TaskOverview
     {
         public static void ViewIndividualTask(int listId, int taskId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
-            var tasks = currentList.Tasks;
+            List<Task> tasks = currentList.Tasks;
 
             if (tasks.Count == 0)
             {
@@ -14,18 +16,23 @@
                 return;
             }
 
-            var currentTask = tasks[taskId - 1];
+            Task currentTask = tasks[taskId - 1];
 
             Console.Clear();
+
+            Console.WriteLine("TASK MENU");
+            Console.WriteLine();
 
             if (currentTask.Completed)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
             }
 
-            Console.WriteLine($"-{tasks.IndexOf(currentTask) + 1}- {currentTask.TaskTitle}");
-            Console.WriteLine($"        - {currentTask.TaskDescription}");
+            Console.WriteLine($"Task ID #{tasks.IndexOf(currentTask) + 1}");
+            Console.WriteLine($"    Title - {currentTask.TaskTitle} (Prio: {currentTask.Priority})");
+            Console.WriteLine($"        ¤ {currentTask.TaskDescription}");
             Console.WriteLine();
+
             Console.ForegroundColor = ConsoleColor.White;
 
             TaskOption(listId, taskId);
@@ -34,7 +41,7 @@
         public static void TaskOption(int listId, int taskId)
         {
             Console.WriteLine("[E] To edit this task.");
-            Console.WriteLine("[S] To store this task.");
+            Console.WriteLine("[A] To archive this task.");
             Console.WriteLine("[B] To go back to list overview.");
             Console.WriteLine("[Q] To quit the program.");
 
@@ -47,7 +54,7 @@
                     Task.EditTask(listId, taskId);
 
                     break;
-                case "S":
+                case "A":
                     Task.ArchiveTask(listId, taskId);
 
                     break;

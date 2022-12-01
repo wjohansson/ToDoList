@@ -1,18 +1,15 @@
-﻿using ToDoList;
-
-namespace ToDoListApp
+﻿namespace ToDoListApp
 {
     public class ArchiveListOverview
     {
         public static void ViewTasksInArchiveList(int listId)
         {
-            var currentList = ProgramManager.ArchiveLists[listId - 1];
+            List currentList = ProgramManager.ArchiveLists[listId - 1];
 
-            var tasks = currentList.Tasks;
+            List<Task> tasks = currentList.Tasks;
 
             if (tasks.Count == 0)
             {
-                //Kanske inte fungerar, dubbelkolla denna
                 ProgramManager.ArchiveLists.RemoveAt(listId - 1);
 
                 ProgramManager.UpdateArchive();
@@ -24,12 +21,15 @@ namespace ToDoListApp
 
             Console.Clear();
 
+            Console.WriteLine("ARCHIVE LIST MENU");
+            Console.WriteLine();
+
             Console.WriteLine($"List Title: {currentList.ListTitle}");
             Console.WriteLine();
 
             ProgramManager.UpdateArchive();
 
-            foreach (var task in tasks)
+            foreach (Task task in tasks)
             {
                 if (task.Completed)
                 {

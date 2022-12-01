@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ToDoListApp
 {
@@ -8,6 +9,9 @@ namespace ToDoListApp
         public static void AllLists()
         {
             Console.Clear();
+
+            Console.WriteLine("OVEWVIEW MENU");
+            Console.WriteLine();
 
             if (ProgramManager.Lists.Count == 0)
             {
@@ -22,9 +26,10 @@ namespace ToDoListApp
             Console.WriteLine("Current existing lists:");
             Console.WriteLine();
 
-            foreach (var list in ProgramManager.Lists)
+            foreach (List list in ProgramManager.Lists)
             {
-                Console.WriteLine($"-{ProgramManager.Lists.IndexOf(list) + 1}- {list.ListTitle}");
+                Console.WriteLine($"List Id #{ProgramManager.Lists.IndexOf(list) + 1}");
+                Console.WriteLine($"    Title - {list.ListTitle}");
                 Console.WriteLine();
             }
 
@@ -34,6 +39,9 @@ namespace ToDoListApp
         public static void AllListsAndToDo()
         {
             Console.Clear();
+
+            Console.WriteLine("OVEWVIEW MENU");
+            Console.WriteLine();
 
             if (ProgramManager.Lists.Count == 0)
             {
@@ -47,24 +55,28 @@ namespace ToDoListApp
             Console.WriteLine("Current existing lists and tasks:");
             Console.WriteLine();
 
-            foreach (var list in ProgramManager.Lists)
+            foreach (List list in ProgramManager.Lists)
             {
-                Console.WriteLine($"-{ProgramManager.Lists.IndexOf(list) + 1}- {list.ListTitle}");
+                Console.WriteLine($"List Id #{ProgramManager.Lists.IndexOf(list) + 1}");
+                Console.WriteLine($"    Title - {list.ListTitle} (Category: {list.ListCategory})");
 
-                foreach (var task in list.Tasks)
+                foreach (Task task in list.Tasks)
                 {
                     if (task.Completed)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                     }
 
-                    Console.WriteLine($"    -{list.Tasks.IndexOf(task) + 1}- {task.TaskTitle}");
-                    Console.WriteLine($"            - {task.TaskDescription}");
+                    Console.WriteLine($"        Task ID #{list.Tasks.IndexOf(task) + 1}");
+                    Console.WriteLine($"            Title - {task.TaskTitle} (Prio: {task.Priority})");
+                    Console.WriteLine($"                ¤ {task.TaskDescription}");
+                    Console.WriteLine();
 
                     Console.ForegroundColor = ConsoleColor.White;
                 }
                 Console.WriteLine();
             }
+
             ListOption();
         }
 
@@ -76,7 +88,9 @@ namespace ToDoListApp
             Console.WriteLine("[L] To view latest list.");
             Console.WriteLine("[D] To delete a list.");
             Console.WriteLine("[N] To create a new list.");
+            Console.WriteLine("[S] To sort all lists.");
             Console.WriteLine("[A] To view archived tasks.");
+            Console.WriteLine("[DELALL] To delete all lists and tasks.");
             Console.WriteLine("[Q] To quit the program.");
 
             Console.WriteLine();
@@ -117,8 +131,16 @@ namespace ToDoListApp
                     List.CreateList();
 
                     break;
+                case "S":
+                    ListSort.SortLists();
+
+                    break;
                 case "A":
                     AllArchiveListsOverview.AllArchiveLists();
+
+                    break;
+                case "DELALL":
+                    ProgramManager.ClearAllLists();
 
                     break;
                 case "Q":
@@ -129,7 +151,6 @@ namespace ToDoListApp
 
             Console.Clear();
             AllLists();
-
         }
     }
 }

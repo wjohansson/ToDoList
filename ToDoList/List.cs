@@ -1,33 +1,35 @@
-﻿namespace ToDoListApp
+﻿using System.Threading.Tasks;
+
+namespace ToDoListApp
 {
     public class List
     {
         public string ListTitle { get; set; }
+        public string ListCategory { get; set; }
         public List<Task> Tasks { get; set; }
 
         public static void CreateList()
         {
             Console.Write("Enter new list name: ");
-            var listTitle = Console.ReadLine();
+            string listTitle = Console.ReadLine();
 
-            if (String.IsNullOrWhiteSpace(listTitle))
+            Console.Write("Enter new list category: ");
+            string listCategory = Console.ReadLine();
+
+            if (String.IsNullOrWhiteSpace(listTitle) || String.IsNullOrWhiteSpace(listCategory))
             {
                 Console.WriteLine("List title can not be empty, try again");
 
                 CreateList();
+
                 return;
             }
 
-
-            foreach (var list in ProgramManager.Lists)
-            {
-
-            }
-
-            var newList = new List()
+            List newList = new()
             {
                 ListTitle = listTitle,
-                Tasks = new List<Task>()
+                Tasks = new List<Task>(),
+                ListCategory = listCategory
             };
 
             ProgramManager.Lists.Add(newList);
@@ -39,21 +41,16 @@
 
         public static void EditList(int listId)
         {
-            var currentList = ProgramManager.Lists[listId - 1];
+            List currentList = ProgramManager.Lists[listId - 1];
 
             Console.Clear();
             Console.WriteLine($"Old title: {currentList.ListTitle}");
-            Console.Write("Enter the new title: ");
-            var newTitle = Console.ReadLine();
+            Console.Write("Enter the new title or leave empty to keep the old title: ");
+            string newTitle = Console.ReadLine();
 
-            if (String.IsNullOrWhiteSpace(newTitle))
-            {
-                Console.WriteLine("The title can not be empty. Try again");
-
-                EditList(listId);
-
-                return;
-            }
+            Console.WriteLine($"Old categoy: {currentList.ListTitle}");
+            Console.Write("Enter the new category or leave empty to keep the old category: ");
+            string newCategory = Console.ReadLine();
 
             Console.Write("Are you sure? y/N: ");
 
@@ -65,7 +62,15 @@
                     return;
             }
 
-            currentList.ListTitle = newTitle;
+            if (!String.IsNullOrWhiteSpace(newTitle))
+            {
+                currentList.ListTitle = newTitle;
+            }
+
+            if (!String.IsNullOrWhiteSpace(newCategory))
+            {
+                currentList.ListCategory = newCategory;
+            }
 
             ProgramManager.UpdateAllLists();
         }
@@ -128,6 +133,25 @@
             AllListsOverview.AllLists();
         }
 
+
+        public static void DeleteSpecificList(int listId)
+        {
+            try
+            {
+                ProgramManager.Lists.RemoveAt(listId - 1);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Console.WriteLine("Id does not exist, try again.");
+
+                DeleteList();
+
+                return;
+            }
+
+            ProgramManager.UpdateAllLists();
+        }
+
         public static void ViewList()
         {
             if (ProgramManager.Lists.Count == 0)
@@ -171,5 +195,51 @@
                 return;
             }
         }
+
+        public static void ArchiveThisList(int listId)
+        {
+            List currentList = ProgramManager.Lists[listId - 1];
+
+            var listExists = false;
+
+            var archiveListId = 0;
+
+            foreach (List list in ProgramManager.ArchiveLists)
+            {
+                if (list.ListTitle == currentList.ListTitle)
+                {
+                    listExists = true;
+                    archiveListId = ProgramManager.ArchiveLists.IndexOf(list);
+                    break;
+                }
+            }
+
+            if (listExists)
+            {
+                Console.WriteLine("List already exists in archive.");
+                Console.WriteLine();
+                Console.WriteLine("[N] To create a new archive list with a new name");
+                Console.WriteLine("[A] To add tasks to existing archive list");
+
+                switch (Console.ReadLine().ToUpper())
+                {
+                    case "N":
+                        ArchiveList.CreateArchiveListIfDouble(listId);
+
+                        break;
+                    case "A":
+                        ArchiveList.AddTasksToArchiveList(listId, archiveListId);
+
+                        break;
+                }
+            }
+            else
+            {
+                ProgramManager.ArchiveLists.Add(currentList);
+            }
+
+
+            DeleteSpecificList(listId);
+        }
+        }
     }
-}
