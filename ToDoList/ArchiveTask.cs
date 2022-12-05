@@ -2,47 +2,39 @@
 {
     public class ArchiveTask
     {
-        public static void DeleteSpecificArchiveTask(int listId)
+        public static void DeleteSpecificArchiveTask(int archiveListPosition)
         {
-            List currentList = ProgramManager.ArchiveLists[listId - 1];
+            ListManager currentArchiveList = ProgramManager.ArchiveLists[archiveListPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> archiveTasks = currentArchiveList.Tasks;
 
-            int taskId;
+            int archiveTaskPosition;
 
             try
             {
-                Console.Write("Enter the id of the archived task you want to delete: ");
-                taskId = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Enter the Position of the archived task you want to delete: ");
+                archiveTaskPosition = Convert.ToInt32(Console.ReadLine());
             }
             catch (FormatException)
             {
-                Console.WriteLine("Id must be a number, try again.");
+                Console.WriteLine("Position must be a number, try again.");
 
-                DeleteSpecificArchiveTask(listId);
+                DeleteSpecificArchiveTask(archiveListPosition);
 
                 return;
             }
 
-            Console.Write("Are you sure? y/N: ");
-
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
+            ProgramManager.AreYouSure("Are you sure you want to delete this archive task? y/N: ");
 
             try
             {
-                tasks.RemoveAt(taskId - 1);
+                archiveTasks.RemoveAt(archiveTaskPosition - 1);
             }
             catch (ArgumentOutOfRangeException)
             {
-                Console.WriteLine("Id does not exist, try again.");
+                Console.WriteLine("Position does not exist, try again.");
 
-                DeleteSpecificArchiveTask(listId);
+                DeleteSpecificArchiveTask(archiveListPosition);
 
                 return;
             }
@@ -50,50 +42,50 @@
             ProgramManager.UpdateArchive();
         }
 
-        public static void DeleteArchiveTask(int listId, int taskId)
+        public static void DeleteArchiveTask(int archiveListPosition, int archiveTaskPosition)
         {
-            List currentList = ProgramManager.ArchiveLists[listId - 1];
+            ListManager currentArchiveList = ProgramManager.ArchiveLists[archiveListPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> archiveTasks = currentArchiveList.Tasks;
 
-            tasks.RemoveAt(taskId - 1);
+            archiveTasks.RemoveAt(archiveTaskPosition - 1);
 
             ProgramManager.UpdateArchive();
         }
 
-        public static void RestoreSpecificTask(int listId)
+        public static void RestoreSpecificTask(int archiveListPosition)
         {
-            List currentList = ProgramManager.ArchiveLists[listId - 1];
+            ListManager currentArchiveList = ProgramManager.ArchiveLists[archiveListPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> archiveTasks = currentArchiveList.Tasks;
 
-            int taskId;
+            int archiveTaskPosition;
 
             try
             {
-                Console.Write("Enter the id of the archived task you want to restore: ");
-                taskId = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Enter the position of the archived task you want to restore: ");
+                archiveTaskPosition = Convert.ToInt32(Console.ReadLine());
             }
             catch (FormatException)
             {
-                Console.WriteLine("Id must be a number, try again.");
+                Console.WriteLine("Position must be a number, try again.");
 
-                RestoreSpecificTask(listId);
+                RestoreSpecificTask(archiveListPosition);
 
                 return;
             }
 
-            Task currentTask = tasks[taskId - 1];
+            TaskManager currentTask = archiveTasks[archiveTaskPosition - 1];
 
             var listExists = false;
             var taskExists = false;
 
             var currentListId = 0;
-            List<Task> currentTasks;
+            List<TaskManager> currentTasks;
 
-            foreach (List list in ProgramManager.Lists)
+            foreach (ListManager list in ProgramManager.Lists)
             {
-                if (list.ListTitle == currentList.ListTitle)
+                if (list.ListTitle == currentArchiveList.ListTitle)
                 {
                     listExists = true;
                     currentListId = ProgramManager.Lists.IndexOf(list);
@@ -105,7 +97,7 @@
             {
                 currentTasks = ProgramManager.Lists[currentListId].Tasks;
 
-                foreach (Task task in currentTasks)
+                foreach (TaskManager task in currentTasks)
                 {
                     if (task.TaskTitle == currentTask.TaskTitle)
                     {
@@ -128,7 +120,7 @@
                             return;
                     }
 
-                    DeleteArchiveTask(listId, taskId);
+                    DeleteArchiveTask(archiveListPosition, archiveTaskPosition);
                     return;
                 }
 
@@ -136,10 +128,10 @@
             }
             else
             {
-                List newList = new List()
+                ListManager newList = new ListManager()
                 {
-                    ListTitle = currentList.ListTitle,
-                    Tasks = new List<Task>()
+                    ListTitle = currentArchiveList.ListTitle,
+                    Tasks = new List<TaskManager>()
                 };
 
                 ProgramManager.Lists.Add(newList);
@@ -149,21 +141,13 @@
                 ProgramManager.Lists[newListId].Tasks.Add(currentTask);
             }
 
-            Console.Write("Are you sure? y/N: ");
-
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
+            ProgramManager.AreYouSure("Are you sure you want to restore this archive task? y/N: ");
 
             ProgramManager.UpdateAllLists();
 
-            DeleteArchiveTask(listId, taskId);
+            DeleteArchiveTask(archiveListPosition, archiveTaskPosition);
 
-            ArchiveListOverview.ViewTasksInArchiveList(listId);
+            ArchiveListOverview.ViewTasksInArchiveList(archiveListPosition);
         }
     }
 }

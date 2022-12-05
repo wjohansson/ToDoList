@@ -10,7 +10,7 @@ namespace ToDoListApp
         {
             Console.Clear();
 
-            Console.WriteLine("OVEWVIEW MENU");
+            Console.WriteLine("OVERVIEW MENU");
             Console.WriteLine();
 
             if (ProgramManager.Lists.Count == 0)
@@ -26,11 +26,33 @@ namespace ToDoListApp
             Console.WriteLine("Current existing lists:");
             Console.WriteLine();
 
-            foreach (List list in ProgramManager.Lists)
+            foreach (ListManager list in ProgramManager.Lists)
             {
-                Console.WriteLine($"List Id #{ProgramManager.Lists.IndexOf(list) + 1}");
+                var allTasksCompleted = true;
+
+                if (list.Tasks.Count == 0)
+                {
+                    allTasksCompleted = false;
+                }
+
+                foreach (TaskManager task in list.Tasks)
+                {
+                    if (!task.Completed)
+                    {
+                        allTasksCompleted = false;
+                    }
+                }
+
+                if (allTasksCompleted)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+
+                Console.WriteLine($"List Position #{ProgramManager.Lists.IndexOf(list) + 1}");
                 Console.WriteLine($"    Title - {list.ListTitle}");
                 Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.White;
             }
 
             ListOption();
@@ -55,19 +77,41 @@ namespace ToDoListApp
             Console.WriteLine("Current existing lists and tasks:");
             Console.WriteLine();
 
-            foreach (List list in ProgramManager.Lists)
+            foreach (ListManager list in ProgramManager.Lists)
             {
-                Console.WriteLine($"List Id #{ProgramManager.Lists.IndexOf(list) + 1}");
+                var allTasksCompleted = true;
+
+                if (list.Tasks.Count == 0)
+                {
+                    allTasksCompleted = false;
+                }
+
+                foreach (TaskManager task in list.Tasks)
+                {
+                    if (!task.Completed)
+                    {
+                        allTasksCompleted = false;
+                    }
+                }
+
+                if (allTasksCompleted)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+
+                Console.WriteLine($"List Position #{ProgramManager.Lists.IndexOf(list) + 1}");
                 Console.WriteLine($"    Title - {list.ListTitle} (Category: {list.ListCategory})");
 
-                foreach (Task task in list.Tasks)
+                Console.ForegroundColor = ConsoleColor.White;
+
+                foreach (TaskManager task in list.Tasks)
                 {
                     if (task.Completed)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                     }
 
-                    Console.WriteLine($"        Task ID #{list.Tasks.IndexOf(task) + 1}");
+                    Console.WriteLine($"        Task Position #{list.Tasks.IndexOf(task) + 1}");
                     Console.WriteLine($"            Title - {task.TaskTitle} (Prio: {task.Priority})");
                     Console.WriteLine($"                ¤ {task.TaskDescription}");
                     Console.WriteLine();
@@ -84,8 +128,8 @@ namespace ToDoListApp
         {
             Console.WriteLine("[E] To expand all lists.");
             Console.WriteLine("[C] To collapse all lists.");
-            Console.WriteLine("[V] To view a list.");
-            Console.WriteLine("[L] To view latest list.");
+            Console.WriteLine("[V] To view a list and its tasks.");
+            Console.WriteLine("[L] To view recently visited list.");
             Console.WriteLine("[D] To delete a list.");
             Console.WriteLine("[N] To create a new list.");
             Console.WriteLine("[S] To sort all lists.");
@@ -106,17 +150,17 @@ namespace ToDoListApp
 
                     break;
                 case "V":
-                    List.ViewList();
+                    ListManager.ViewList();
 
                     return;
                 case "L":
                     try
                     {
-                        ListOverview.ViewTasksInList(ProgramManager.Lists.Count);
+                        HistoryManager.ViewListFromHistory(ProgramManager.RecentList[0]);
                     }
                     catch (ArgumentOutOfRangeException)
                     {
-                        Console.WriteLine("No lists to view, create one first. Returning");
+                        Console.WriteLine("No latest lists to view. Returning");
 
                         Thread.Sleep(2000);
                         break;
@@ -124,11 +168,11 @@ namespace ToDoListApp
 
                     break;
                 case "D":
-                    List.DeleteList();
+                    ListManager.DeleteList();
 
                     break;
                 case "N":
-                    List.CreateList();
+                    ListManager.CreateList();
 
                     break;
                 case "S":

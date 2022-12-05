@@ -1,21 +1,35 @@
 ﻿namespace ToDoListApp
 {
-    public class Task
+    public class TaskManager
     {
         public string TaskTitle { get; set; }
         public string TaskDescription { get; set; }
+        public int TaskId { get; init; }
         public bool Completed { get; set; }
         public int Priority { get; set; }
         public string DateCreated { get; set; }
+        public List<SubTask> SubTasks { get; set; }
 
-        public static void CreateTask(int listId)
+        public static void CreateTask(int listPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
             Console.Write("Enter a new task: ");
             string newTitle = Console.ReadLine();
+
+            foreach (TaskManager task in tasks)
+            {
+                if (task.TaskTitle == newTitle)
+                {
+                    Console.WriteLine("Task already exists. Try again with another name.");
+
+                    CreateTask(listPosition);
+
+                    return;
+                }
+            }
 
             Console.Write("Enter the task description: ");
             string newDescription = Console.ReadLine();
@@ -24,7 +38,7 @@
             {
                 Console.WriteLine("Task title or description can not be empty. Try again");
 
-                CreateTask(listId);
+                CreateTask(listPosition);
 
                 return;
             }
@@ -46,32 +60,44 @@
 
                 Console.WriteLine("Priority must be a number between 1 and 5. Try again.");
 
-                CreateTask(listId);
+                CreateTask(listPosition);
 
                 return;
             }
 
-            Task task = new()
+            var taskId = 1;
+
+            foreach (TaskManager task in tasks)
+            {
+                if (task.TaskId >= taskId)
+                {
+                    taskId = task.TaskId + 1;
+                }
+            }
+
+            TaskManager newTask = new()
             {
                 TaskTitle = newTitle,
                 TaskDescription = newDescription,
+                TaskId = taskId,
                 Completed = false,
                 Priority = newPriority,
                 DateCreated = DateTime.Now.ToString("G"),
+                SubTasks = new List<SubTask>()
             };
 
-            tasks.Add(task);
+            tasks.Add(newTask);
 
             ProgramManager.UpdateAllLists();
         }
 
-        public static void EditTask(int listId, int taskId)
+        public static void EditTask(int listPosition, int taskPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
-            Task currentTask = tasks[taskId - 1];
+            TaskManager currentTask = tasks[taskPosition - 1];
 
             string newPriorityInput;
             int newPriority;
@@ -98,7 +124,7 @@
             {
                 Console.WriteLine("Priority must be a number between 1 and 5. Try again");
 
-                EditTask(listId, taskId);
+                EditTask(listPosition, taskPosition);
 
                 return;
             }
@@ -108,21 +134,25 @@
             Console.Write("Enter the new title or leave empty to keep old title: ");
             string newTitle = Console.ReadLine();
 
+            foreach (TaskManager task in tasks)
+            {
+                if (task.TaskTitle == newTitle)
+                {
+                    Console.WriteLine("Task with the same name already exists. Try again");
+
+                    EditTask(listPosition, taskPosition);
+
+                    return;
+                }
+            }
+
             Console.WriteLine($"Old description: {currentTask.TaskDescription}");
             Console.Write("Enter the new description or leave empty to keep old description: ");
             string newDescription = Console.ReadLine();
 
-            
 
-            Console.Write("Are you sure? y/N: ");
 
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
+            ProgramManager.AreYouSure("Are you sure you want to edit this task? y/N: ");
 
             if (!String.IsNullOrWhiteSpace(newTitle))
             {
@@ -138,47 +168,39 @@
             ProgramManager.UpdateAllLists();
         }
 
-        public static void DeleteSpecificTask(int listId)
+        public static void DeleteTask(int listPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
-            int taskId;
+            int taskPosition;
 
             try
             {
-                Console.Write("Enter the id of the task you want to delete: ");
-                taskId = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Enter the position of the task you want to delete: ");
+                taskPosition = Convert.ToInt32(Console.ReadLine());
             }
             catch (FormatException)
             {
-                Console.WriteLine("Id must be a number, try again.");
+                Console.WriteLine("Position must be a number, try again.");
 
-                DeleteSpecificTask(listId);
+                DeleteTask(listPosition);
 
                 return;
             }
 
-            Console.Write("Are you sure? y/N: ");
-
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
+            ProgramManager.AreYouSure("Are you sure you want to delete this task? y/N: ");
 
             try
             {
-                tasks.RemoveAt(taskId - 1);
+                tasks.RemoveAt(taskPosition - 1);
             }
             catch (ArgumentOutOfRangeException)
             {
-                Console.WriteLine("Id does not exist, try again.");
+                Console.WriteLine("Position does not exist, try again.");
 
-                DeleteSpecificTask(listId);
+                DeleteTask(listPosition);
 
                 return;
             }
@@ -186,70 +208,70 @@
             ProgramManager.UpdateAllLists();
         }
 
-        public static void DeleteTask(int listId, int taskId)
+        public static void DeleteTask(int listPosition, int taskPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
-            tasks.RemoveAt(taskId - 1);
-            
+            tasks.RemoveAt(taskPosition - 1);
+
 
             ProgramManager.UpdateAllLists();
         }
 
-        public static void ViewTask(int listId)
+        public static void ViewTask(int listPosition)
         {
-            int taskId;
+            int taskPosition;
 
             try
             {
-                Console.Write("Enter the id of the task you want to view: ");
-                taskId = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Enter the position of the task you want to view: ");
+                taskPosition = Convert.ToInt32(Console.ReadLine());
             }
             catch (FormatException)
             {
-                Console.WriteLine("Id must be a number, try again.");
+                Console.WriteLine("Position must be a number, try again.");
 
-                ViewTask(listId);
+                ViewTask(listPosition);
 
                 return;
             }
 
             try
             {
-                TaskOverview.ViewIndividualTask(listId, taskId);
+                TaskOverview.ViewIndividualTask(listPosition, taskPosition);
             }
             catch (ArgumentOutOfRangeException)
             {
-                Console.WriteLine("Id does not exist, try again.");
+                Console.WriteLine("Position does not exist, try again.");
 
-                ViewTask(listId);
+                ViewTask(listPosition);
 
                 return;
             }
         }
 
-        public static void ArchiveTask(int listId, int taskId)
+        public static void ArchiveTask(int listPosition, int taskPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
-            Task currentTask = tasks[taskId - 1];
+            TaskManager currentTask = tasks[taskPosition - 1];
 
             var listExists = false;
             var taskExists = false;
 
-            var archiveListId = 0;
-            List<Task> currentArchiveTasks;
+            var archiveListPosition = 0;
+            List<TaskManager> currentArchiveTasks;
 
-            foreach (List list in ProgramManager.ArchiveLists)
+            foreach (ListManager list in ProgramManager.ArchiveLists)
             {
                 if (list.ListTitle == currentList.ListTitle)
                 {
                     listExists = true;
-                    archiveListId = ProgramManager.ArchiveLists.IndexOf(list);
+                    archiveListPosition = ProgramManager.ArchiveLists.IndexOf(list);
                     break;
                 }
             }
@@ -258,9 +280,9 @@
 
             if (listExists)
             {
-                currentArchiveTasks = ProgramManager.ArchiveLists[archiveListId].Tasks;
+                currentArchiveTasks = ProgramManager.ArchiveLists[archiveListPosition].Tasks;
 
-                foreach (Task task in currentArchiveTasks)
+                foreach (TaskManager task in currentArchiveTasks)
                 {
                     if (task.TaskTitle == currentTask.TaskTitle)
                     {
@@ -283,18 +305,18 @@
                             return;
                     }
 
-                    DeleteTask(listId, taskId);
+                    DeleteTask(listPosition, taskPosition);
                     return;
                 }
 
-                ProgramManager.ArchiveLists[archiveListId].Tasks.Add(currentTask);
+                ProgramManager.ArchiveLists[archiveListPosition].Tasks.Add(currentTask);
             }
             else
             {
-                List newList = new()
+                ListManager newList = new()
                 {
                     ListTitle = currentList.ListTitle,
-                    Tasks = new List<Task>()
+                    Tasks = new List<TaskManager>()
                 };
 
                 ProgramManager.ArchiveLists.Add(newList);
@@ -304,56 +326,48 @@
                 ProgramManager.ArchiveLists[archiveNewListId].Tasks.Add(currentTask);
             }
 
-            Console.Write("Are you sure? y/N: ");
-
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
+            ProgramManager.AreYouSure("Are you sure you want to archive this task? y/N: ");
 
             ProgramManager.UpdateArchive();
 
-            DeleteTask(listId, taskId);
+            DeleteTask(listPosition, taskPosition);
 
-            ListOverview.ViewTasksInList(listId);
+            ListOverview.ViewTasksInList(listPosition);
         }
 
-        public static void ToggleComplete(int listId)
+        public static void ToggleComplete(int listPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
-            int taskId;
+            int taskPosition;
 
             try
             {
-                Console.Write("Enter the id of the list: ");
-                taskId = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Enter the position of the list: ");
+                taskPosition = Convert.ToInt32(Console.ReadLine());
             }
             catch (FormatException)
             {
-                Console.WriteLine("Id must be a number, try again.");
+                Console.WriteLine("Position must be a number, try again.");
 
-                ToggleComplete(listId);
+                ToggleComplete(listPosition);
 
                 return;
             }
 
-            Task currentTask;
+            TaskManager currentTask;
 
             try
             {
-                currentTask = tasks[taskId - 1];
+                currentTask = tasks[taskPosition - 1];
             }
             catch (ArgumentOutOfRangeException)
             {
-                Console.WriteLine("Id does not exist, try again.");
+                Console.WriteLine("Position does not exist, try again.");
 
-                ToggleComplete(listId);
+                ToggleComplete(listPosition);
 
                 return;
             }

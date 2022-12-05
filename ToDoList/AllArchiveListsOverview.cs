@@ -23,10 +23,33 @@
             Console.WriteLine("Current existing archived lists:");
             Console.WriteLine();
 
-            foreach (List list in ProgramManager.ArchiveLists)
+            foreach (ListManager list in ProgramManager.ArchiveLists)
             {
-                Console.WriteLine($"-{ProgramManager.ArchiveLists.IndexOf(list) + 1}- {list.ListTitle}");
+                var allTasksCompleted = true;
+
+                if (list.Tasks.Count == 0)
+                {
+                    allTasksCompleted = false;
+                }
+
+                foreach (TaskManager task in list.Tasks)
+                {
+                    if (!task.Completed)
+                    {
+                        allTasksCompleted = false;
+                    }
+                }
+
+                if (allTasksCompleted)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+
+                Console.WriteLine($"List Position #{ProgramManager.ArchiveLists.IndexOf(list) + 1}");
+                Console.WriteLine($"    Title - {list.ListTitle}");
                 Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.White;
             }
 
             ArchiveListOption();
@@ -52,19 +75,21 @@
             Console.WriteLine("Current existing archived lists and tasks:");
             Console.WriteLine();
 
-            foreach (List list in ProgramManager.ArchiveLists)
+            foreach (ListManager list in ProgramManager.ArchiveLists)
             {
-                Console.WriteLine($"-{ProgramManager.ArchiveLists.IndexOf(list) + 1}- {list.ListTitle}");
+                Console.WriteLine($"List Position #{ProgramManager.ArchiveLists.IndexOf(list) + 1}");
+                Console.WriteLine($"    Title - {list.ListTitle} (Category: {list.ListCategory})");
 
-                foreach (Task task in list.Tasks)
+                foreach (TaskManager task in list.Tasks)
                 {
                     if (task.Completed)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                     }
 
-                    Console.WriteLine($"    -{list.Tasks.IndexOf(task) + 1}- {task.TaskTitle}");
-                    Console.WriteLine($"            - {task.TaskDescription}");
+                    Console.WriteLine($"        Task Position #{list.Tasks.IndexOf(task) + 1}");
+                    Console.WriteLine($"            Title - {task.TaskTitle} (Prio: {task.Priority})");
+                    Console.WriteLine($"                ¤ {task.TaskDescription}");
 
                     Console.ForegroundColor = ConsoleColor.White;
                 }
@@ -77,6 +102,7 @@
         {
             Console.WriteLine("[E] To expand all archived lists.");
             Console.WriteLine("[C] To collapse all arvchived lists.");
+            Console.WriteLine("[R] To restore an archived lists.");
             Console.WriteLine("[V] To view a arvchived list.");
             Console.WriteLine("[D] To delete a arvchived list.");
             Console.WriteLine("[B] To go back to startpage.");
@@ -93,6 +119,10 @@
                     break;
                 case "C":
                     AllArchiveLists();
+
+                    break;
+                case "R":
+                    ArchiveList.RestoreSpecificArchiveList();
 
                     break;
                 case "V":

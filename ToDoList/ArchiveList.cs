@@ -1,4 +1,6 @@
-﻿namespace ToDoListApp
+﻿using System.Collections.Generic;
+
+namespace ToDoListApp
 {
     public class ArchiveList
     {
@@ -15,39 +17,31 @@
                 return;
             }
 
-            int listId;
+            int archiveListPosition;
 
             try
             {
-                Console.Write("Enter the id of the archived list you want to delete: ");
-                listId = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Enter the position of the archived list you want to delete: ");
+                archiveListPosition = Convert.ToInt32(Console.ReadLine());
             }
             catch (FormatException)
             {
-                Console.WriteLine("Id must be a number, try again.");
+                Console.WriteLine("Position must be a number, try again.");
 
                 DeleteArchiveList();
 
                 return;
             }
 
-            Console.Write("Are you sure? y/N: ");
-
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
+            ProgramManager.AreYouSure("Are you sure you want to delete the list? y/N: ");
 
             try
             {
-                ProgramManager.ArchiveLists.RemoveAt(listId - 1);
+                ProgramManager.ArchiveLists.RemoveAt(archiveListPosition - 1);
             }
             catch (ArgumentOutOfRangeException)
             {
-                Console.WriteLine("Id does not exist, try again.");
+                Console.WriteLine("Position does not exist, try again.");
 
                 DeleteArchiveList();
 
@@ -58,6 +52,24 @@
 
             Console.Clear();
             AllArchiveListsOverview.AllArchiveLists();
+        }
+
+        public static void DeleteSpecificArchiveList(int archiveListPosition)
+        {
+            try
+            {
+                ProgramManager.ArchiveLists.RemoveAt(archiveListPosition - 1);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Console.WriteLine("Position does not exist, try again.");
+
+                DeleteSpecificArchiveList(archiveListPosition);
+
+                return;
+            }
+
+            ProgramManager.UpdateArchive();
         }
 
         public static void ViewArchiveList()
@@ -74,16 +86,16 @@
                 return;
             }
 
-            int listId;
+            int archiveListPosition;
 
             try
             {
-                Console.Write("Enter the id of the archived list you want to view: ");
-                listId = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Enter the position of the archived list you want to view: ");
+                archiveListPosition = Convert.ToInt32(Console.ReadLine());
             }
             catch (FormatException)
             {
-                Console.WriteLine("Id must be a number, try again.");
+                Console.WriteLine("Position must be a number, try again.");
 
                 ViewArchiveList();
 
@@ -92,11 +104,11 @@
 
             try
             {
-                ArchiveListOverview.ViewTasksInArchiveList(listId);
+                ArchiveListOverview.ViewTasksInArchiveList(archiveListPosition);
             }
             catch (ArgumentOutOfRangeException)
             {
-                Console.WriteLine("Id does not exist, try again.");
+                Console.WriteLine("Position does not exist, try again.");
 
                 ViewArchiveList();
 
@@ -104,9 +116,82 @@
             }
         }
 
-        public static void CreateArchiveListIfDouble(int listId)
+        public static void RestoreSpecificArchiveList()
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            int archiveListPosition;
+            try
+            {
+                Console.Write("Position of the list you want to restore: ");
+                archiveListPosition = Convert.ToInt32(Console.ReadLine());
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Position must be a number. Try again");
+
+                RestoreSpecificArchiveList();
+                return;
+            }
+
+            ListManager currentArchiveList = ProgramManager.ArchiveLists[archiveListPosition - 1];
+
+            var listExists = false;
+
+            var listPosition = 0;
+
+            foreach (ListManager list in ProgramManager.Lists)
+            {
+                if (list.ListTitle == currentArchiveList.ListTitle)
+                {
+                    listExists = true;
+                    listPosition = ProgramManager.Lists.IndexOf(list);
+                    break;
+                }
+            }
+
+            Console.Write("Are you sure you want to restore the list? y/N: ");
+
+            switch (Console.ReadLine().ToUpper())
+            {
+                case "Y":
+                    break;
+                default:
+                    ArchiveListOverview.ViewTasksInArchiveList(archiveListPosition);
+                    return;
+            }
+
+            if (listExists)
+            {
+                Console.WriteLine("List already exists.");
+                Console.WriteLine();
+                Console.WriteLine("[N] To create a new list with a new name");
+                Console.WriteLine("[A] To add tasks to existing list");
+
+                Console.Write("What do you want to do: ");
+
+                switch (Console.ReadLine().ToUpper())
+                {
+                    case "N":
+                        ListManager.CreateListIfDouble(archiveListPosition);
+
+                        break;
+                    case "A":
+                        ListManager.AddTasksToList(listPosition, archiveListPosition);
+
+                        break;
+                }
+            }
+            else
+            {
+                ProgramManager.Lists.Add(currentArchiveList);
+            }
+
+
+            DeleteSpecificArchiveList(archiveListPosition);
+        }
+
+        public static void CreateArchiveListIfDouble(int listPosition)
+        {
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
             Console.Write("Enter the new title of the duplicate list: ");
             string newTitle = Console.ReadLine();
@@ -115,58 +200,48 @@
             {
                 Console.WriteLine("New title can not be empty. Try again");
 
-                CreateArchiveListIfDouble(listId);
+                CreateArchiveListIfDouble(listPosition);
 
                 return;
             }
 
-            foreach (List list in ProgramManager.ArchiveLists)
+            foreach (ListManager list in ProgramManager.ArchiveLists)
             {
                 if (list.ListTitle == newTitle)
                 {
                     Console.WriteLine("List title already exists in archive. Try again");
 
-                    CreateArchiveListIfDouble(listId);
+                    CreateArchiveListIfDouble(listPosition);
 
                     return;
                 }
             }
 
-            List newList = new()
+            ListManager newList = new()
             {
                 ListTitle = newTitle,
                 ListCategory = currentList.ListCategory,
                 Tasks = currentList.Tasks
             };
 
-            Console.Write("Are you sure? y/N: ");
-
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
-
             ProgramManager.ArchiveLists.Add(newList);
 
             ProgramManager.UpdateArchive();
         }
 
-        public static void AddTasksToArchiveList(int listId, int archiveListId)
+        public static void AddTasksToArchiveList(int listPosition, int archiveListPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
-            List currentArchiveList = ProgramManager.ArchiveLists[archiveListId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
+            ListManager currentArchiveList = ProgramManager.ArchiveLists[archiveListPosition];
 
-            foreach (Task task in currentList.Tasks)
+            foreach (TaskManager task in currentList.Tasks)
             {
-                foreach (Task archiveTask in currentArchiveList.Tasks)
+                foreach (TaskManager archiveTask in currentArchiveList.Tasks)
                 {
                     if (task.TaskTitle == archiveTask.TaskTitle)
                     {
                         Console.WriteLine($"Task [{task.TaskTitle}] already exists in the archive list. Creating a new list to prevent doubles");
-                        CreateArchiveListIfDouble(listId);
+                        CreateArchiveListIfDouble(listPosition);
                         return;
                     }
                 }

@@ -4,9 +4,9 @@ namespace ToDoListApp
 {
     public class ListOverview
     {
-        public static void ViewTasksInList(int listId)
+        public static void ViewTasksInList(int listPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
             Console.Clear();
 
@@ -16,29 +16,29 @@ namespace ToDoListApp
             Console.WriteLine($"List Title - {currentList.ListTitle} (Category: {currentList.ListCategory})");
             Console.WriteLine();
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
             if (tasks.Count == 0)
             {
                 Console.WriteLine("No tasks in this list. You need to add one.");
 
-                Task.CreateTask(listId);
+                TaskManager.CreateTask(listPosition);
 
-                ViewTasksInList(listId);
+                ViewTasksInList(listPosition);
 
                 return;
             }
 
             ProgramManager.UpdateAllLists();
 
-            foreach (Task task in tasks)
+            foreach (TaskManager task in tasks)
             {
                 if (task.Completed)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
 
-                Console.WriteLine($"    Task ID #{tasks.IndexOf(task) + 1}");
+                Console.WriteLine($"    Task Position #{tasks.IndexOf(task) + 1}");
                 Console.WriteLine($"        Title - {task.TaskTitle} (Prio: {task.Priority})");
                 Console.WriteLine($"            ¤ {task.TaskDescription}");
                 Console.WriteLine();
@@ -46,16 +46,16 @@ namespace ToDoListApp
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
-            TasksOption(listId);
+            TasksOption(listPosition);
 
-            ViewTasksInList(listId);
+            ViewTasksInList(listPosition);
         }
 
-        public static void TasksOption(int listId)
+        public static void TasksOption(int listPosition)
         {
             Console.WriteLine("[E] To edit this list.");
             Console.WriteLine("[A] To archive this list.");
-            Console.WriteLine("[V] To view a task.");
+            Console.WriteLine("[V] To view a task and its sub-tasks.");
             Console.WriteLine("[D] To delete a task.");
             Console.WriteLine("[N] To create a new task.");
             Console.WriteLine("[T] To toggle completion of a task.");
@@ -68,32 +68,32 @@ namespace ToDoListApp
             switch (Console.ReadLine().ToUpper())
             {
                 case "E":
-                    List.EditList(listId);
+                    ListManager.EditList(listPosition);
 
                     break;
                 case "A":
-                    List.ArchiveThisList(listId);
+                    ListManager.ArchiveThisList(listPosition);
                     AllListsOverview.AllLists();
 
                     return;
                 case "V":
-                    Task.ViewTask(listId);
+                    TaskManager.ViewTask(listPosition);
 
                     return;
                 case "D":
-                    Task.DeleteSpecificTask(listId);
+                    TaskManager.DeleteTask(listPosition);
 
                     break;
                 case "N":
-                    Task.CreateTask(listId);
+                    TaskManager.CreateTask(listPosition);
 
                     break;
                 case "T":
-                    Task.ToggleComplete(listId);
+                    TaskManager.ToggleComplete(listPosition);
 
                     break;
                 case "S":
-                    TaskSort.SortTasks(listId);
+                    TaskSort.SortTasks(listPosition);
 
                     break;
                 case "B":

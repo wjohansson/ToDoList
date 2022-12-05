@@ -2,15 +2,15 @@
 {
     public class ArchiveListOverview
     {
-        public static void ViewTasksInArchiveList(int listId)
+        public static void ViewTasksInArchiveList(int archiveListPosition)
         {
-            List currentList = ProgramManager.ArchiveLists[listId - 1];
+            ListManager currentArchiveList = ProgramManager.ArchiveLists[archiveListPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> archiveTasks = currentArchiveList.Tasks;
 
-            if (tasks.Count == 0)
+            if (archiveTasks.Count == 0)
             {
-                ProgramManager.ArchiveLists.RemoveAt(listId - 1);
+                ProgramManager.ArchiveLists.RemoveAt(archiveListPosition - 1);
 
                 ProgramManager.UpdateArchive();
 
@@ -24,31 +24,32 @@
             Console.WriteLine("ARCHIVE LIST MENU");
             Console.WriteLine();
 
-            Console.WriteLine($"List Title: {currentList.ListTitle}");
+            Console.WriteLine($"List Title: {currentArchiveList.ListTitle}");
             Console.WriteLine();
 
             ProgramManager.UpdateArchive();
 
-            foreach (Task task in tasks)
+            foreach (TaskManager task in archiveTasks)
             {
                 if (task.Completed)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
 
-                Console.WriteLine($"-{tasks.IndexOf(task) + 1}- {task.TaskTitle}");
-                Console.WriteLine($"    - {task.TaskDescription}");
+                Console.WriteLine($"    Task Position #{archiveTasks.IndexOf(task) + 1}");
+                Console.WriteLine($"        Title - {task.TaskTitle} (Prio: {task.Priority})");
+                Console.WriteLine($"            ¤ {task.TaskDescription}");
                 Console.WriteLine();
 
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
-            ArchiveTasksOption(listId);
+            ArchiveTasksOption(archiveListPosition);
 
-            ViewTasksInArchiveList(listId);
+            ViewTasksInArchiveList(archiveListPosition);
         }
 
-        public static void ArchiveTasksOption(int listId)
+        public static void ArchiveTasksOption(int archiveListPosition)
         {
             Console.WriteLine("[R] To restore task.");
             Console.WriteLine("[D] To delete an archived task.");
@@ -60,11 +61,11 @@
             switch (Console.ReadLine().ToUpper())
             {
                 case "R":
-                    ArchiveTask.RestoreSpecificTask(listId);
+                    ArchiveTask.RestoreSpecificTask(archiveListPosition);
 
                     break;
                 case "D":
-                    ArchiveTask.DeleteSpecificArchiveTask(listId);
+                    ArchiveTask.DeleteSpecificArchiveTask(archiveListPosition);
 
                     break;
                 case "B":

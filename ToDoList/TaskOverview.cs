@@ -4,19 +4,19 @@ namespace ToDoListApp
 {
     public class TaskOverview
     {
-        public static void ViewIndividualTask(int listId, int taskId)
+        public static void ViewIndividualTask(int listPosition, int taskPosition)
         {
-            List currentList = ProgramManager.Lists[listId - 1];
+            ListManager currentList = ProgramManager.Lists[listPosition - 1];
 
-            List<Task> tasks = currentList.Tasks;
+            List<TaskManager> tasks = currentList.Tasks;
 
             if (tasks.Count == 0)
             {
-                ListOverview.ViewTasksInList(listId);
+                ListOverview.ViewTasksInList(listPosition);
                 return;
             }
 
-            Task currentTask = tasks[taskId - 1];
+            TaskManager currentTask = tasks[taskPosition - 1];
 
             Console.Clear();
 
@@ -28,20 +28,38 @@ namespace ToDoListApp
                 Console.ForegroundColor = ConsoleColor.Green;
             }
 
-            Console.WriteLine($"Task ID #{tasks.IndexOf(currentTask) + 1}");
+            Console.WriteLine($"Task Position #{tasks.IndexOf(currentTask) + 1}");
             Console.WriteLine($"    Title - {currentTask.TaskTitle} (Prio: {currentTask.Priority})");
-            Console.WriteLine($"        ¤ {currentTask.TaskDescription}");
+            Console.WriteLine($"        Description - {currentTask.TaskDescription}");
+            Console.WriteLine();
+
+            foreach (SubTask subTask in currentTask.SubTasks)
+            {
+                if (subTask.Completed)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+                Console.WriteLine($"            Sub-task Position #{currentTask.SubTasks.IndexOf(subTask) + 1}");
+                Console.WriteLine($"                Title - {subTask.SubTaskTitle}");
+                Console.WriteLine($"                    Description - {subTask.SubTaskDescription}");
+
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
             Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.White;
 
-            TaskOption(listId, taskId);
+            TaskOption(listPosition, taskPosition);
         }
 
-        public static void TaskOption(int listId, int taskId)
+        public static void TaskOption(int listPosition, int taskPosition)
         {
             Console.WriteLine("[E] To edit this task.");
             Console.WriteLine("[A] To archive this task.");
+            Console.WriteLine("[D] To delete a sub-task.");
+            Console.WriteLine("[ES] To edit a sub-task.");
+            Console.WriteLine("[N] To create a new sub-task.");
             Console.WriteLine("[B] To go back to list overview.");
             Console.WriteLine("[Q] To quit the program.");
 
@@ -51,15 +69,28 @@ namespace ToDoListApp
             switch (Console.ReadLine().ToUpper())
             {
                 case "E":
-                    Task.EditTask(listId, taskId);
+                    TaskManager.EditTask(listPosition, taskPosition);
 
                     break;
                 case "A":
-                    Task.ArchiveTask(listId, taskId);
+                    TaskManager.ArchiveTask(listPosition, taskPosition);
+
+                    break;
+                case "D":
+                    SubTask.DeleteSubTask(listPosition, taskPosition);
+
+                    break;
+                case "ES":
+                    SubTask.EditSubTask(listPosition, taskPosition);
+
+                    break;
+
+                case "N":
+                    SubTask.CreateSubTask(listPosition, taskPosition);
 
                     break;
                 case "B":
-                    ListOverview.ViewTasksInList(listId);
+                    ListOverview.ViewTasksInList(listPosition);
 
                     break;
                 case "Q":
@@ -68,7 +99,7 @@ namespace ToDoListApp
                     break;
             }
 
-            ViewIndividualTask(listId, taskId);
+            ViewIndividualTask(listPosition, taskPosition);
         }
     }
 }

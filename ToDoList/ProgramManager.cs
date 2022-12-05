@@ -7,9 +7,11 @@ namespace ToDoListApp
         private static string _currentDir = Environment.CurrentDirectory;
         private static string _path = Directory.GetParent(_currentDir).Parent.Parent.FullName + @"\ToDoList.json";
         private static string _archivePath = Directory.GetParent(_currentDir).Parent.Parent.FullName + @"\ToDoListArchive.json";
+        private static string _historyPath = Directory.GetParent(_currentDir).Parent.Parent.FullName + @"\ToDoListHistory.json";
 
-        public static List<List> Lists { get; set; } = GetAllLists();
-        public static List<List> ArchiveLists { get; set; } = GetArchive();
+        public static List<ListManager> Lists { get; set; }
+        public static List<ListManager> ArchiveLists { get; set; }
+        public static List<int> RecentList { get; set; }
 
         public static void CreateFiles()
         {
@@ -26,17 +28,26 @@ namespace ToDoListApp
 
                 File.WriteAllText(_archivePath, "[]");
             }
+
+            if (!File.Exists(_historyPath) || String.IsNullOrEmpty(File.ReadAllText(_archivePath)))
+            {
+                using (FileStream fs = File.Create(_historyPath)) { }
+
+                File.WriteAllText(_historyPath, "[]");
+            }
         }
 
         public static string GetPath() => _path;
 
         public static string GetArchivePath() => _archivePath;
 
-        public static List<List> GetAllLists()
+        public static string GetRecentPath() => _historyPath;
+
+        public static List<ListManager> GetAllLists()
         {
             string jsonData = File.ReadAllText(_path);
 
-            List<List> lists = JsonSerializer.Deserialize<List<List>>(jsonData);
+            List<ListManager> lists = JsonSerializer.Deserialize<List<ListManager>>(jsonData);
 
             return lists;
         }
@@ -49,12 +60,12 @@ namespace ToDoListApp
             File.WriteAllText(_path, jsonData);
         }
 
-        public static List<List> GetArchive()
+        public static List<ListManager> GetArchive()
         {
 
             string jsonData = File.ReadAllText(_archivePath);
 
-            List<List> lists = JsonSerializer.Deserialize<List<List>>(jsonData);
+            List<ListManager> lists = JsonSerializer.Deserialize<List<ListManager>>(jsonData);
 
             return lists;
         }
@@ -66,9 +77,25 @@ namespace ToDoListApp
             File.WriteAllText(_archivePath, jsonData);
         }
 
+        public static List<int> GetRecent()
+        {
+            string jsonData = File.ReadAllText(_historyPath);
+
+            List<int> lists = JsonSerializer.Deserialize<List<int>>(jsonData);
+
+            return lists;
+        }
+
+        public static void UpdateRecent()
+        {
+            string jsonData = JsonSerializer.Serialize(RecentList);
+
+            File.WriteAllText(_historyPath, jsonData);
+        }
+
         public static void QuitProgram()
         {
-            Console.Write("Are you sure? Y/n: ");
+            Console.Write("Are you sure you want to quit the program? Y/n: ");
 
             switch (Console.ReadLine().ToUpper())
             {
@@ -83,15 +110,7 @@ namespace ToDoListApp
 
         public static void ClearAllLists()
         {
-            Console.Write("Are you sure? y/N: ");
-
-            switch (Console.ReadLine().ToUpper())
-            {
-                case "Y":
-                    break;
-                default:
-                    return;
-            }
+            AreYouSure("Are you sure you want to REMOVE all the lists and tasks? This can not be undone. y/N: ");
 
             Lists.Clear();
             UpdateAllLists();
@@ -99,7 +118,15 @@ namespace ToDoListApp
 
         public static void ClearAllArchiveLists()
         {
-            Console.Write("Are you sure? y/N: ");
+            AreYouSure("Are you sure you want to REMOVE all archive lists and tasks? This can not be undone. y/N: ");
+
+            ArchiveLists.Clear();
+            UpdateArchive();
+        }
+
+        public static void AreYouSure(string message)
+        {
+            Console.Write(message);
 
             switch (Console.ReadLine().ToUpper())
             {
@@ -108,9 +135,7 @@ namespace ToDoListApp
                 default:
                     return;
             }
-
-            ArchiveLists.Clear();
-            UpdateArchive();
         }
+
     }
 }

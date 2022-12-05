@@ -4,7 +4,7 @@ namespace ToDoListApp
 {
     public class TaskSort
     {
-        public static void SortTasks(int listId)
+        public static void SortTasks(int listPosition)
         {
             Console.Clear();
             Console.WriteLine("[N] To sort by name.");
@@ -16,37 +16,37 @@ namespace ToDoListApp
             switch (Console.ReadLine().ToUpper())
             {
                 case "N":
-                    NameSort(listId);
+                    NameSort(listPosition);
 
                     break;
                 case "D":
-                    DateSort(listId);
+                    DateSort(listPosition);
 
                     break;
                 case "P":
-                    PrioritySort(listId);
+                    PrioritySort(listPosition);
 
                     break;
             }
         }
 
-        public static void NameSort(int listId)
+        public static void NameSort(int listPosition)
         {
-            ProgramManager.Lists[listId - 1].Tasks = ProgramManager.Lists[listId - 1].Tasks.OrderBy(o => o.TaskTitle).ToList();
+            ProgramManager.Lists[listPosition - 1].Tasks = ProgramManager.Lists[listPosition - 1].Tasks.OrderBy(o => o.TaskTitle).ToList();
 
             ProgramManager.UpdateAllLists();
         }
 
-        public static void DateSort(int listId)
+        public static void DateSort(int listPosition)
         {
-            ProgramManager.Lists[listId - 1].Tasks = ProgramManager.Lists[listId - 1].Tasks.OrderBy(o => o.DateCreated).ToList();
+            ProgramManager.Lists[listPosition - 1].Tasks = ProgramManager.Lists[listPosition - 1].Tasks.OrderBy(o => o.DateCreated).ToList();
 
             ProgramManager.UpdateAllLists();
         }
 
-        private static void PrioritySort(int listId)
+        private static void PrioritySort(int listPosition)
         {
-            ProgramManager.Lists[listId - 1].Tasks = ProgramManager.Lists[listId - 1].Tasks.OrderBy(o => o.Priority).ToList();
+            ProgramManager.Lists[listPosition - 1].Tasks = ProgramManager.Lists[listPosition - 1].Tasks.OrderBy(o => o.Priority).ToList();
 
             ProgramManager.UpdateAllLists();
         }
